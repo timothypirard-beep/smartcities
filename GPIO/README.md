@@ -1,50 +1,68 @@
-Labo GPIO — Contrôle de LED et Interruptions (Raspberry Pi Pico W)
-Introduction
-Ce laboratoire a pour objectif d'apprendre à manipuler les ports GPIO d'un Raspberry Pi Pico W à l'aide de MicroPython.
+# 💡 Labo GPIO — Contrôle de LED & Interruptions (Raspberry Pi Pico W)
 
-Matériel requis
-Microcontrôleur compatible MicroPython (Raspberry Pi Pico W)
+Ce projet présente la mise en œuvre des entrées/sorties numériques (GPIO) et des interruptions matérielles (`IRQ`) sur une carte **Raspberry Pi Pico W** programmée en MicroPython, à l'aide d'un shield d'extension Grove.
 
-Module LED
+---
 
-Module bouton-poussoir
+## 📸 Matériel & Montage
 
-Câbles de liaison (jumpers)
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/3d80e159-2c27-47de-91f8-b9ac7969ab4d" width="600" alt="Shield d'extension pour Raspberry Pi Pico" />
+  <p><em>Shield d'extension avec connecteurs rapides pour Raspberry Pi Pico</em></p>
+</div>
 
-On utilise le shieled avec des connecteur plus simple donc la led est sur le port D16 et le bouton sur le port D18
-Consignes de base
-Brancher la LED et le bouton-poussoir sur les broches GPIO du microcontrôleur.
+### Composants utilisés
+* **Microcontrôleur :** Raspberry Pi Pico W (MicroPython)
+* **Extension :** Shield d'extension pour Pico (connecteurs standardisés / Grove)
+* **Actionneur :** Module LED
+* **Capteur :** Module Bouton-poussoir
+* **Connectique :** Câbles de liaison 4 broches pour shield
 
-Développer un script MicroPython répondant aux critères suivants :
+### Tableau de raccordement
+| Périphérique | Port Shield | Broche GPIO (MicroPython) | Rôle |
+| :--- | :---: | :---: | :--- |
+| **Module LED** | `D16` | `GP16` | Sortie numérique (`Pin.OUT`) |
+| **Module Bouton** | `D18` | `GP18` | Entrée numérique (`Pin.IN, Pin.PULL_DOWN`) |
 
-1ᵉʳ appui : La LED clignote à une fréquence de 0,5 Hz (période de 2 s).
+---
 
-2ᵉ appui : La LED clignote à une cadence plus rapide.
+## 🎯 Objectifs & Consignes
 
-3ᵉ appui : La LED s'éteint complètement.
+L'objectif est de contrôler l'état et la fréquence de clignotement d'une LED via des appuis successifs sur un bouton-poussoir :
 
-Tester et valider le bon fonctionnement du montage.
+1. **1ᵉʳ appui :** Clignotement lent à une fréquence de **0,5 Hz** (période de 2 s : 1 s allumée, 1 s éteinte).
+2. **2ᵉ appui :** Clignotement accéléré (fréquence plus élevée).
+3. **3ᵉ appui :** Extinction complète de la LED.
+4. **Appui suivant :** Réinitialisation du cycle vers l'état 1.
 
-Fonctionnalités bonus
-Effet de transition : Ajout d'un effet visuel intermédiaire lors du passage d'une vitesse de clignotement à une autre.
+### 🌟 Bonus implémentés
+* **Effet de transition visuel :** Déclenchement d'une brève animation lumineuse (stroboscope rapide) lors du basculement d'un mode à un autre.
+* **Seuil d'appuis paramétrable :** Possibilité de configurer le nombre d'appuis nécessaires pour changer d'état.
 
-Seuil d'appuis paramétrable : Modification du nombre d'appuis requis pour déclencher un changement d'état.
+---
 
-Explication de l'implémentation
-Détection des appuis (Interruption / IRQ) :
+## ⚙️ Architecture & Fonctionnement
 
-Pour éviter le blocage du programme, la détection du bouton repose sur une interruption matérielle (IRQ). À chaque front montant valide, une fonction de rappel incrémente un compteur d'appuis tout en appliquant un filtrage anti-rebond (debouncing). Le compteur gère le cycle des modes et revient à zéro une fois le cycle terminé.
+### 1. Interruption matérielle (`IRQ`) & Anti-rebond
+Au lieu de sonder en continu l'état de la broche dans la boucle principale (*polling*), le bouton est géré par une interruption matérielle :
+* Déclenchement configuré sur front montant (`machine.Pin.IRQ_RISING`).
+* Filtrage logiciel des rebonds mécaniques (*debouncing*) à l'aide de calculs d'intervalles de temps (`utime.ticks_diff()`).
 
-Gestion des états :
+### 2. Machine à états
+Le programme gère une transition d'états cyclique :
+* **État 1 :** Mode 0,5 Hz
+* **État 2 :** Mode rapide
+* **État 0 / 3 :** Arrêt complet
 
-Le programme associe chaque valeur du compteur aux différents états demandés :
+### 3. Effet visuel (`effect`)
+Dès qu'une différence entre l'état courant et le nouvel état est détectée, une routine dédiée produit une impulsion visuelle distinctive avant d'appliquer la nouvelle cadence de clignotement.
 
-État 1 : Clignotement lent (0,5 Hz).
+---
 
-État 2 : Clignotement rapide.
+## 📁 Arborescence du dépôt
 
-État 3 : Arrêt complet de la LED.
-
-Effet visuel (Bonus) :
-
-Une fonction dédiée (effect) s'exécute dès qu'un changement d'état est détecté, produisant une brève séquence lumineuse avant d'enchaîner sur le mode sélectionné.
+```text
+├── README.md          # Documentation du projet
+├── main.py            # Code source principal MicroPython
+└── docs/
+    └── wiring.png     # Schéma ou photo du montage réel
