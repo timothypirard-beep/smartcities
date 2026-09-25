@@ -1,97 +1,49 @@
-import machine
-import utime
+Labo GPIO — Contrôle de LED et Interruptions (Raspberry Pi Pico W)
+Introduction
+Ce laboratoire a pour objectif d'apprendre à manipuler les ports GPIO d'un Raspberry Pi Pico W à l'aide de MicroPython.
 
-# ==========================================
-# 1. Configuration du matériel (Hardware)
-# ==========================================
-# LED externe sur GP16 (ou LED interne Pico W : 'LED')
-PIN_LED = 16
-PIN_BP = 18
+Matériel requis
+Microcontrôleur compatible MicroPython (Raspberry Pi Pico W)
 
-led = machine.Pin(PIN_LED, machine.Pin.OUT)
-bp = machine.Pin(PIN_BP, machine.Pin.IN, machine.Pin.PULL_DOWN)
+Module LED
 
-# ==========================================
-# 2. Variables de gestion des états
-# ==========================================
-# Bonus 2 : nombre d'appuis requis pour passer à l'état suivant
-PRESSES_PER_STAGE = 2
+Module bouton-poussoir
 
-raw_press_count = 0      # Compteur brut d'appuis valides
-current_state = 0        # 0: Éteint, 1: Clignotement lent, 2: Clignotement rapide
-previous_state = 0       # Détection de changement d'état
+Câbles de liaison (jumpers)
 
-last_irq_time = 0        # Anti-rebond (debounce)
-last_blink_time = 0      # Chronomètre pour le clignotement non bloquant
-led_status = False
+Consignes de base
+Brancher la LED et le bouton-poussoir sur les broches GPIO du microcontrôleur.
 
-# ==========================================
-# 3. Routine d'interruption (IRQ)
-# ==========================================
-def bp_handler(pin):
-    """
-    Gestionnaire d'interruption pour le bouton poussoir.
-    Incrémente les appuis avec filtrage anti-rebond matériel/logiciel.
-    """
-    global raw_press_count, last_irq_time
-    now = utime.ticks_ms()
-    
-    # Filtre anti-rebond : 200 ms minimum entre deux appuis
-    if utime.ticks_diff(now, last_irq_time) > 200:
-        last_irq_time = now
-        raw_press_count += 1
+Développer un script MicroPython répondant aux critères suivants :
 
-# Déclenchement sur front montant (appui du bouton)
-bp.irq(trigger=machine.Pin.IRQ_RISING, handler=bp_handler)
+1ᵉʳ appui : La LED clignote à une fréquence de 0,5 Hz (période de 2 s).
 
-# ==========================================
-# 4. Fonctions d'animation (Bonus 1)
-# ==========================================
-def trigger_transition_effect():
-    """
-    Bonus 1 : Effet visuel lors du changement de vitesse/mode.
-    Produit 4 impulsions très rapides pour signaler la bascule.
-    """
-    for _ in range(4):
-        led.value(1)
-        utime.sleep_ms(40)
-        led.value(0)
-        utime.sleep_ms(40)
+2ᵉ appui : La LED clignote à une cadence plus rapide.
 
-# ==========================================
-# 5. Boucle principale
-# ==========================================
-while True:
-    # Calcul de l'état actuel selon le seuil d'appuis configuré
-    # 0 = repos / éteint, 1 = lent (0.5 Hz), 2 = rapide (3 Hz)
-    stage_calculated = (raw_press_count // PRESSES_PER_STAGE) % 3
-    current_state = stage_calculated
+3ᵉ appui : La LED s'éteint complètement.
 
-    # Détection de transition -> déclenchement de l'effet bonus
-    if current_state != previous_state:
-        trigger_transition_effect()
-        previous_state = current_state
-        last_blink_time = utime.ticks_ms()
+Tester et valider le bon fonctionnement du montage.
 
-    current_time = utime.ticks_ms()
+Fonctionnalités bonus
+Effet de transition : Ajout d'un effet visuel intermédiaire lors du passage d'une vitesse de clignotement à une autre.
 
-    # --- Mode 1 : Clignotement 0,5 Hz (1s allumée / 1s éteinte) ---
-    if current_state == 1:
-        if utime.ticks_diff(current_time, last_blink_time) >= 1000:
-            last_blink_time = current_time
-            led_status = not led_status
-            led.value(led_status)
+Seuil d'appuis paramétrable : Modification du nombre d'appuis requis pour déclencher un changement d'état.
 
-    # --- Mode 2 : Clignotement rapide (~3 Hz, 160 ms alterné) ---
-    elif current_state == 2:
-        if utime.ticks_diff(current_time, last_blink_time) >= 160:
-            last_blink_time = current_time
-            led_status = not led_status
-            led.value(led_status)
+Explication de l'implémentation
+Détection des appuis (Interruption / IRQ) :
 
-    # --- Mode 0 (3e phase) : Extinction totale ---
-    else:
-        led.value(0)
-        led_status = False
+Pour éviter le blocage du programme, la détection du bouton repose sur une interruption matérielle (IRQ). À chaque front montant valide, une fonction de rappel incrémente un compteur d'appuis tout en appliquant un filtrage anti-rebond (debouncing). Le compteur gère le cycle des modes et revient à zéro une fois le cycle terminé.
 
-    utime.sleep_ms(10)
+Gestion des états :
+
+Le programme associe chaque valeur du compteur aux différents états demandés :
+
+État 1 : Clignotement lent (0,5 Hz).
+
+État 2 : Clignotement rapide.
+
+État 3 : Arrêt complet de la LED.
+
+Effet visuel (Bonus) :
+
+Une fonction dédiée (effect) s'exécute dès qu'un changement d'état est détecté, produisant une brève séquence lumineuse avant d'enchaîner sur le mode sélectionné.
