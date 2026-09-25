@@ -11,6 +11,7 @@ Module bouton-poussoir
 
 Câbles de liaison (jumpers)
 
+On utilise le shieled avec des connecteur plus simple donc la led est sur le port D16 et le bouton sur le port D18
 Consignes de base
 Brancher la LED et le bouton-poussoir sur les broches GPIO du microcontrôleur.
 
