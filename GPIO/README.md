@@ -7,22 +7,31 @@ Ce projet présente la mise en œuvre des entrées/sorties numériques (GPIO) et
 ## 📸 Matériel & Montage
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/3d80e159-2c27-47de-91f8-b9ac7969ab4d" width="600" alt="Shield d'extension pour Raspberry Pi Pico" />
+  <img src="https://github.com/user-attachments/assets/3d80e159-2c27-47de-91f8-b9ac7969ab4d" width="550" alt="Shield d'extension pour Raspberry Pi Pico" />
   <p><em>Shield d'extension avec connecteurs rapides pour Raspberry Pi Pico</em></p>
+</div>
+
+<br/>
+
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/16ed3d00-2cae-44c9-9d51-7109a65576c0" width="280" alt="Module bouton-poussoir Grove" />
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://github.com/user-attachments/assets/85c5747b-a9e3-4466-94dc-80d84ff0be12" width="280" alt="Module LED Grove" />
+  <p><em>Modules Grove utilisés : Bouton-poussoir (gauche) et LED rouge (droite)</em></p>
 </div>
 
 ### Composants utilisés
 * **Microcontrôleur :** Raspberry Pi Pico W (MicroPython)
-* **Extension :** Shield d'extension pour Pico (connecteurs standardisés / Grove)
-* **Actionneur :** Module LED
-* **Capteur :** Module Bouton-poussoir
-* **Connectique :** Câbles de liaison 4 broches pour shield
+* **Extension :** Shield d'extension pour Pico (connecteurs standardisés Grove)
+* **Actionneur :** Module LED Grove
+* **Capteur :** Module Bouton-poussoir Grove
+* **Connectique :** Câbles de liaison universels 4 broches Grove
 
 ### Tableau de raccordement
-| Périphérique | Port Shield | Broche GPIO (MicroPython) | Rôle |
-| :--- | :---: | :---: | :--- |
-| **Module LED** | `D16` | `GP16` | Sortie numérique (`Pin.OUT`) |
-| **Module Bouton** | `D18` | `GP18` | Entrée numérique (`Pin.IN, Pin.PULL_DOWN`) |
+| Périphérique | Port Shield | Broche GPIO (MicroPython) | Type de signal | Rôle |
+| :--- | :---: | :---: | :---: | :--- |
+| **Module LED** | `D16` | `GP16` | Numérique | Sortie (`Pin.OUT`) |
+| **Module Bouton** | `D18` | `GP18` | Numérique | Entrée avec pull-down (`Pin.IN, Pin.PULL_DOWN`) |
 
 ---
 
@@ -50,10 +59,9 @@ Au lieu de sonder en continu l'état de la broche dans la boucle principale (*po
 
 ### 2. Machine à états
 Le programme gère une transition d'états cyclique :
-* **État 1 :** Mode 0,5 Hz
+* **État 1 :** Mode 0,5 Hz (clignotement lent)
 * **État 2 :** Mode rapide
 * **État 0 / 3 :** Arrêt complet
 
 ### 3. Effet visuel (`effect`)
 Dès qu'une différence entre l'état courant et le nouvel état est détectée, une routine dédiée produit une impulsion visuelle distinctive avant d'appliquer la nouvelle cadence de clignotement.
-
