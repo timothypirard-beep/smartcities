@@ -57,12 +57,3 @@ Le programme gère une transition d'états cyclique :
 ### 3. Effet visuel (`effect`)
 Dès qu'une différence entre l'état courant et le nouvel état est détectée, une routine dédiée produit une impulsion visuelle distinctive avant d'appliquer la nouvelle cadence de clignotement.
 
----
-
-## 📁 Arborescence du dépôt
-
-```text
-├── README.md          # Documentation du projet
-├── main.py            # Code source principal MicroPython
-└── docs/
-    └── wiring.png     # Schéma ou photo du montage réel
