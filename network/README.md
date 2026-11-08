@@ -1,6 +1,6 @@
 # 🕒 Horloge Connectée avec Servomoteur (Raspberry Pi Pico W)
 
-Ce projet permet de fabriquer une horloge connectée en MicroPython avec un **Raspberry Pi Pico W** et un **servomoteur standard (0° à 180°)**[cite: 1]. L'heure est synchronisée via internet avec le protocole NTP, puis le servomoteur se positionne automatiquement sur le cadran.
+Ce projet permet de fabriquer une horloge connectée en MicroPython avec un **Raspberry Pi Pico W** et un **servomoteur standard (0° à 180°)**. L'heure est synchronisée via internet avec le protocole NTP, puis le servomoteur se positionne automatiquement sur le cadran.
 
 ---
 
